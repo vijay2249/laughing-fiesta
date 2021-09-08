@@ -17,3 +17,5 @@
 [https://www.geeksforgeeks.org/strtok-strtok_r-functions-c-examples/](https://www.geeksforgeeks.org/strtok-strtok_r-functions-c-examples/)
 
 [https://www.includehelp.com/c/process-identification-pid_t-data-type.aspx](https://www.includehelp.com/c/process-identification-pid_t-data-type.aspx)
+
+[https://tldp.org/LDP/abs/html/io-redirection.html](https://tldp.org/LDP/abs/html/io-redirection.html) I/O redirection
