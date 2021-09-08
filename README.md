@@ -1,5 +1,7 @@
 # laughing-fiesta
 
+Main resource page link -> [https://wiki.osdev.org/Main_Page](https://wiki.osdev.org/Main_Page)
+
 [https://hacksland.net/c-programming-file-descriptors](https://hacksland.net/c-programming-file-descriptors) for file descriptors learning
 
 [https://www.tutorialspoint.com/c_standard_library/c_function_signal.htm](https://www.tutorialspoint.com/c_standard_library/c_function_signal.htm) signal in c
