@@ -38,7 +38,7 @@ void fileIOManager(char **argv, char *source, char *destination, int option){
       dup2(fd, STDOUT_FILENO);
       close(fd);
     }
-    if (execvp(argv[0], argv) == ERROR) {
+    if(execvp(argv[0], argv) == ERROR) {
       perror("Error: Command not found.\n");
       kill(getpid(), SIGTERM);
     }
@@ -48,6 +48,7 @@ void fileIOManager(char **argv, char *source, char *destination, int option){
 
 // Function to manage piping
 void pipeManager(char **argv){
+  // fd = file descriptor
   int fd1[2], fd2[2], commands_count = 0, aux0 = 0, aux1 = 0, aux2 = 0, end_of_Command;
   char *commTok[BUFFERSIZE];
   for(int i = 0; argv[i] != NULL; i++)
@@ -56,62 +57,62 @@ void pipeManager(char **argv){
   while(argv[aux0] != NULL && end_of_Command != 1) {
     aux1 = 0;
     //using auxiliary variables as indices and a pointer array to store the commands
-    while (strcmp(argv[aux0], "|") != 0) {
+    while(strcmp(argv[aux0], "|") != 0) {
       commTok[aux1++] = argv[aux0++];
-      if (argv[aux0] == NULL) end_of_Command = 1,break;
+      if(argv[aux0] == NULL) end_of_Command = 1,break;
     }
     commTok[aux1] = NULL;   //to mark the end of the command before being executed
     aux0++;
     //connect two commands' inputs and outputs
-    if (aux2 % 2 == 0) pipe(fd2);
+    if(aux2 % 2 == 0) pipe(fd2);
     else pipe(fd1);
     pid = fork();
     //close files if error occurs
-    if (pid == ERROR) {
-      if (aux2 != commands_count - 1) {
+    if(pid == ERROR) {
+      if(aux2 != commands_count - 1) {
         if (aux2 % 2 == 0) close(fd2[1]);
         else close(fd1[1]);
       }
       perror("Error: Unable to create child process.\n");
       return;
     }
-    if (pid == 0) {
+    if(pid == 0) {
       //first command: replace standard input
-      if (aux2 == 0) dup2(fd2[1], STDOUT_FILENO);
+      if(aux2 == 0) dup2(fd2[1], STDOUT_FILENO);
       //last command: replace standard input for one pipe
-      else if (aux2 == commands_count - 1) {
-        if (commands_count % 2 == 0) dup2(fd2[0], STDIN_FILENO);
+      else if(aux2 == commands_count - 1) {
+        if(commands_count % 2 == 0) dup2(fd2[0], STDIN_FILENO);
         else dup2(fd1[0], STDIN_FILENO);
-        //command in the middle: use two pipes for standard input and output (for even and odd number of commands)
       } 
-      else {
-        if (aux2 % 2 == 0) {
-            dup2(fd1[0], STDIN_FILENO);
-            dup2(fd2[1], STDOUT_FILENO);
-        } else {
-            dup2(fd2[0], STDIN_FILENO);
-            dup2(fd1[1], STDOUT_FILENO);
+      else{
+        if((aux2%2) == 0) {
+          dup2(fd1[0], STDIN_FILENO);
+          dup2(fd2[1], STDOUT_FILENO);
+        }
+        else{
+          dup2(fd2[0], STDIN_FILENO);
+          dup2(fd1[1], STDOUT_FILENO);
         }
       }
-      if (execvp(commTok[0], commTok) == ERROR) {
+      if(execvp(commTok[0], commTok) == ERROR) {
         perror("Error: Unknown command entered.\n");
         kill(getpid(), SIGTERM); //terminate signal if an error is encountered
       }
     }
     //close file descriptors
-    if (aux2 == commands_count - 1) {
-      if (commands_count % 2 == 0) close(fd2[0]);
+    if(aux2 == commands_count - 1) {
+      if(commands_count % 2 == 0) close(fd2[0]);
       else close(fd1[0]);
     } 
-    else if (aux2 == 0) close(fd2[1]); 
-    else {
-      if (aux2 % 2 == 0) {
-          close(fd1[0]);
-          close(fd2[1]);
+    else if(aux2 == 0) close(fd2[1]); 
+    else{
+      if((aux2%2) == 0) {
+        close(fd1[0]);
+        close(fd2[1]);
       }
-      else {
-          close(fd2[0]);
-          close(fd1[0]);
+      else{
+        close(fd2[0]);
+        close(fd1[0]);
       }
     }
     waitpid(pid, NULL, 0);
@@ -146,8 +147,8 @@ int Command_Execution(char *argv[]){
         pipeManager(argv); //execute a command in the background
         return 1;
       }
-      else if (strcmp(argv[i], "&") == 0) background = 1;//file I/O redirection
-      else if (strcmp(argv[i], "<") == 0){
+      else if(strcmp(argv[i], "&") == 0) background = 1;//file I/O redirection
+      else if(strcmp(argv[i], "<") == 0){
         aux1 = i+1;
         aux2 = i+2;
         aux3 = i+3;
@@ -184,16 +185,16 @@ int Command_Execution(char *argv[]){
     }
     //process creation (background or foreground)
     //CHILD
-    if (pid == 0){
+    if(pid == 0){
       signal(SIGINT, SIG_IGN); //ignores SIGINT signals
       //end process if non-existing commmands were used, executes command
-      if (execvp(argvAux[0], argvAux) == ERROR) {
+      if(execvp(argvAux[0], argvAux) == ERROR) {
         perror("Error: Command not found.\n");
         kill(getpid(), SIGTERM);
       }
     }
     //PARENT
-    if (background == 0) waitpid(pid, NULL, 0); //waits for child if the process is not in the background
+    if(background == 0) waitpid(pid, NULL, 0); //waits for child if the process is not in the background
     else printf("New process with PID, %d, was created.\n", pid);
   }
   return 1;
@@ -205,7 +206,7 @@ int main(int *argc, char **argv[]){
   int numTok = 1;//counter for # of tokens
   pid = -10;  //a pid that is not possible
   printf("%s", INITIAL_PROMPT);
-  while(1) {
+  while(1){
     //print defined prompt
     display_Prompt();
     memset(commandStr, '\0', BUFFERSIZE); //memset will fill the buffer with null terminated characters, emptying the buffer
@@ -219,66 +220,3 @@ int main(int *argc, char **argv[]){
   }
   exit(0);
 }
-
-/*
- **************  fork()  ********************************
- creates a new child process, takes no parameters and returns integer
- -ve return value = creation of child process is unsuccessful
- 0 return value = returns the new child process
- +ve return value = returns the process id of new child process created
-
-********************* strtok()  ***********************
- splits the given string based on the second parameter that is passed into the function
-
-************************************************
-strcmp() -> returns 0 if both the parameters passed are same else return something else
-
-****************** chdir() ************************
-chdir() -> changes the working directory with the path mentioned to it as a parameter
-0 return value if the command is successful
--1 return value if the command execution fails
-
-********************  execvp(1,2) **********************
-int execvp(const char* command, char *argv[])
-this takes unix command as the first argument to execute the command
-the second command represents the arguments to the command in the first argument
-represents NULL as the termination argument of the command
-if this function execution fails, then it returns -1 as return value
-
-The main problem with this function usage is that,
-  once this function is called, then the execution of the c program gets halt and 
-  the command runs as the normal command as typed in terminal, 
-  and thereafter the remaining part of the c program gets halt and will not be compiled
-
-  so we need to fork the c program part and the call the function execvp() to continue both processes
-
-
-**********************  perror(const char* str)  *******************
-  prints the error message (str) to the output
-
-
-*---- SIGTERM => termination request sent to the program
-*---- SIGINT => Interactive attention signal
-*---- SIG_IGN => ignore the signal
-
-************************  getpid() ****************
-  this returns the process id that is created when the process is forked in this process
-
-**************************  waitpid()  **************************
- suspends the calling process until the system gets status information on the child
-
-*----  pid_t => integer number of the process id type
-
-************************** pipe()  ***********************
- pipe is a connection between two processes 
-  -> so that output of one process becomes input of other process
- If a process tries to read before something is written to the pipe, the process is suspended until something is written.
- this takes an array of size two as parameter, -> 
-  1st to read data in the pipe
-  2nd to write data in the pipe
-  and if anything goes wrong, then returns -1 and if all good then returns 0
-
-**********************  dup2()  ******************************
- 
-
-*/
