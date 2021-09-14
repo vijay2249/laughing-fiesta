@@ -20,7 +20,7 @@ void display_Prompt(){printf("%s", PROMPT);}
 
 // Function to manage file I/O redirection
 void fileIOManager(char **argv, char *source, char *destination, int option){
-  if((pid == fork()) == ERROR) perror("Error: Unable to create child process.\n"),return;
+  if((pid == fork()) == ERROR) {perror("Error: Unable to create child process.\n");return;}
   if(pid == 0){
     int fd; //file descriptor
     //file output redirection
@@ -59,7 +59,7 @@ void pipeManager(char **argv){
     //using auxiliary variables as indices and a pointer array to store the commands
     while(strcmp(argv[aux0], "|") != 0) {
       commTok[aux1++] = argv[aux0++];
-      if(argv[aux0] == NULL) end_of_Command = 1,break;
+      if(argv[aux0] == NULL) {end_of_Command = 1;break;}
     }
     commTok[aux1] = NULL; //to mark the end of the command before being executed
     aux0++;
