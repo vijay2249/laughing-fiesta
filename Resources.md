@@ -72,3 +72,12 @@ The main problem with this function usage is that,
 **********************************
 command in the middle: use two pipes for standard input and output (for even and odd number of commands)
 aux2 = commands_count-1 in pipemanager, dup2 function call
+
+
+
+
+deleted txt file and added md file
+
+
+
+
