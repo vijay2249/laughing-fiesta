@@ -10,9 +10,9 @@
 #include<sys/wait.h>
 
 #define BUFFERSIZE 256 //Max amount allowed to read from input
-#define INITIAL_PROMPT "\t\tLab2_Assignment - Mini Linux Terminal - VIJAY CHOWDARY\n" //initial display message
+#define INITIAL_PROMPT "\t\tLab2_Assignment - Mini Linux Terminal\n" //initial display message
 #define PROMPT "lab2_assignment >> " //Shell prompt
-#define PROMPTSIZE sizeof(PROMPT)
+#define PROMPTSIZE sizeof(PROMPT) //sizeof shell prompt
 #define ERROR -1 //for when an error is encountered
 pid_t pid;
 
@@ -20,7 +20,7 @@ void display_Prompt(){printf("%s", PROMPT);}
 
 // Function to manage file I/O redirection
 void fileIOManager(char **argv, char *source, char *destination, int option){
-  if((pid == fork()) == ERROR) {perror("Error: Unable to create child process.\n");return;}
+  if((pid == fork()) == ERROR) perror("Error: Unable to create child process.\n"),return;
   if(pid == 0){
     int fd; //file descriptor
     //file output redirection
@@ -30,7 +30,7 @@ void fileIOManager(char **argv, char *source, char *destination, int option){
       close(fd); //close file
     }
     //file input and output redirection
-    else if(option == 1){
+    if(option == 1){
       fd = open(source, O_RDONLY, 0600); //create a file for reading only
       dup2(fd, STDIN_FILENO);
       close(fd);
@@ -59,9 +59,9 @@ void pipeManager(char **argv){
     //using auxiliary variables as indices and a pointer array to store the commands
     while(strcmp(argv[aux0], "|") != 0) {
       commTok[aux1++] = argv[aux0++];
-      if(argv[aux0] == NULL) {end_of_Command = 1;break;}
+      if(argv[aux0] == NULL) end_of_Command = 1,break;
     }
-    commTok[aux1] = NULL; //to mark the end of the command before being executed
+    commTok[aux1] = NULL;   //to mark the end of the command before being executed
     aux0++;
     //connect two commands' inputs and outputs
     if(aux2 % 2 == 0) pipe(fd2);
@@ -126,6 +126,7 @@ bool compare(char *s){
 }
 
 // Function to handle commands from user's input
+// Functionality incomplete: cd only considers when nothing else is typed after cd (will change to home directory)
 int Command_Execution(char *argv[]){
   bool flag = true;
   char *argvAux[BUFFERSIZE-1]; //since its a string and the last char in string is \n is removed from calc or command
@@ -152,20 +153,20 @@ int Command_Execution(char *argv[]){
         aux2 = i+2;
         aux3 = i+3;
         //if arguments after '<' are empty, return false
-        if(argv[aux1] == NULL && argv[aux2] == NULL && argv[aux3] == NULL){
+        if(argv[aux1] == NULL || argv[aux2] == NULL || argv[aux3] == NULL){
           perror("Error: Insufficient amount of arguments are provided.\n");
           return -1;
         }
         else{
-          //'>' would be two indices after '<'
+            //'>' would be two indices after '<'
           if(strcmp(argv[aux2], ">") != 0) {
             perror("Error: Did you mean '>' ?\n");
             return -1;
           }
         }
-	//file output redirection
         fileIOManager(argvAux, argv[i+1], argv[i+3], 1);
         return 1;
+        //file output redirection
       }
       else if(strcmp(argv[i], ">") == 0){
         if(argv[i+1] == NULL){
@@ -182,7 +183,8 @@ int Command_Execution(char *argv[]){
       perror("Error: Unable to create child process.\n");
       return -1;
     }
-    //process creation (background or foreground) - CHILD
+    //process creation (background or foreground)
+    //CHILD
     if(pid == 0){
       signal(SIGINT, SIG_IGN); //ignores SIGINT signals
       //end process if non-existing commmands were used, executes command
@@ -201,7 +203,7 @@ int Command_Execution(char *argv[]){
 int main(int *argc, char **argv[]){
   char commandStr[BUFFERSIZE];//user input buffer
   char *commandTok[PROMPTSIZE]; //command tokens
-  int numTok = 1;//counter for number of tokens
+  int numTok = 1;//counter for # of tokens
   pid = -10;  //a pid that is not possible
   printf("%s", INITIAL_PROMPT);
   while(1){
