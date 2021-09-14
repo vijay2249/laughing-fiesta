@@ -10,7 +10,7 @@
 #include<sys/wait.h>
 
 #define BUFFERSIZE 256 //Max amount allowed to read from input
-#define INITIAL_PROMPT "\t\tLab2_Assignment - Mini Linux Terminal\n" //initial display message
+#define INITIAL_PROMPT "\t\tLab2_Assignment - Mini Linux Terminal - VIJAY CHOWDARY\n" //initial display message
 #define PROMPT "lab2_assignment >> " //Shell prompt
 #define PROMPTSIZE sizeof(PROMPT)
 #define ERROR -1 //for when an error is encountered
@@ -30,7 +30,7 @@ void fileIOManager(char **argv, char *source, char *destination, int option){
       close(fd); //close file
     }
     //file input and output redirection
-    if(option == 1){
+    else if(option == 1){
       fd = open(source, O_RDONLY, 0600); //create a file for reading only
       dup2(fd, STDIN_FILENO);
       close(fd);
@@ -152,7 +152,7 @@ int Command_Execution(char *argv[]){
         aux2 = i+2;
         aux3 = i+3;
         //if arguments after '<' are empty, return false
-        if(argv[aux1] == NULL || argv[aux2] == NULL || argv[aux3] == NULL){
+        if(argv[aux1] == NULL && argv[aux2] == NULL && argv[aux3] == NULL){
           perror("Error: Insufficient amount of arguments are provided.\n");
           return -1;
         }
